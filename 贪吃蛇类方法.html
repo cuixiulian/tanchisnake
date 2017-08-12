@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>贪吃蛇类方法</title>
+</head>
+<script>
+	window.onload=function(){
+		class Game{
+			constructor(){
+				this.box=box;
+				this.she=[{x:0,y:0},{x:1,y:0},{x:2,y:0}];
+				this.way='right';
+				this.t=0;
+				this.food={x:0,y:0};
+			}
+
+			dragscene(){
+			    
+		        for(let i=0;i<20;i++){     //遍历行
+			       for(let j=0;j<20;j++){ //遍历列
+				      let div=document.createElement('div'); 
+				      console.log(div); //创建新的格子
+				      div.id='c'+j+'-'+i;  //给创建的div起id名
+				      this.box.appendChild(div);//把创建的div放在box的子元素最后 
+				                
+			        }
+		        }
+
+			}
+
+			dragshe(){
+				this.she.forEach((obj)=>{
+					let domobj=document.querySelector('#c'+obj.x+'-'+obj.y);
+			        domobj.className='she'
+				})
+
+			}
+			getfood(){
+				let x,y;
+				let{random:ran,floor:f,ceil:c}=Math;
+				do{
+			       x=f(ran()*20);
+			       y=f(ran()*20);
+			       console.log(x,y)
+		        }while(this.check(x,y,this.she)); 
+
+		    	let domobj=document.querySelector('#c'+x+'-'+y);
+		    	domobj.className='food';
+		    	this.food={x,y}
+		    }
+		    check(a,b,arr){
+
+		    		let result=arr.some((value)=>{
+		    			return value.x==a&&value.y==b;
+		    		});
+		    		return result;
+		   		 }
+
+
+			move(){
+				let t=setInterval(()=>{
+					let oldhead=this.she[this.she.length-1];
+					let newhead;
+					switch(this.way){
+			    		case 'right':
+			    		     newhead={x:oldhead.x+1,y:oldhead.y};
+			    		     break;
+			    		case 'left':
+			    		     newhead={x:oldhead.x-1,y:oldhead.y};
+			    		     break;
+			    		case 'top':
+			    		     newhead={x:oldhead.x,y:oldhead.y-1};
+			    		     break;
+			    		case 'bottom':
+			    		     newhead={x:oldhead.x,y:oldhead.y+1};
+			    		     break;
+		    		}
+		    	let domobj=document.querySelector('#c'+newhead.x+'-'+newhead.y);
+		    	if(!domobj||this.check(newhead.x,newhead.y,this.she)){
+		    		alert('死了,重玩');
+		    		clearInterval(t);
+		    		return;
+		    	}
+		    	domobj.className='she';
+		    	this.she.push(newhead);
+		    	if(newhead.x==this.food.x&&newhead.y==this.food.y){
+		    		this.getfood();
+		    		console.log(1)
+		    	}else{
+		    		let oldend=document.querySelector('#c'+this.she[0].x+'-'+this.she[0].y);
+		    	    oldend.className='';
+		    	    this.she.shift();
+		    	}
+		    	
+		    },200); 
+			}
+			keydown(){
+				document.onkeydown=(e)=>{
+					let num=e.keyCode;
+		    	switch(num){
+		    		case 37:
+		    		if(this.way=='right'){
+		    			return;
+		    		}
+		    		this.way='left';
+		    		break;
+		    		case 38:
+		    		if(this.way=='bottom'){
+		    			return;
+		    		}
+		    		this.way='top';
+		    		break;
+		    		case 39:
+		    		if(this.way=='left'){
+		    			return;
+		    		}
+		    		this.way='right';
+		    		break;
+		    		case 40:
+		    		if(this.way=='top'){
+		    			return;
+		    		}
+		    		this.way='bottom';
+		    		break;
+		    	}
+			  }
+				
+		    }
+
+			
+			play(){
+				this.dragscene();
+				this.dragshe();
+				this.getfood();
+				this.move();
+				this.keydown();
+			}
+		}
+		let box=document.querySelector('#box'); //获取box	
+		let newgame=new Game(box);
+		newgame.play();
+
+	}
+
+</script>
+<style>
+	#box{
+		width:400px;
+		height:400px;
+		margin:20px auto;
+		border:1px solid #000;
+	}
+	#box div{
+		width:20px;
+		height:20px;
+		border:1px solid #000;
+		box-sizing:border-box;
+		border:0;
+		float:left;
+	}
+	#box .food{
+		background:red;
+	}
+	#box .she{
+		background:green;
+	}
+</style>
+<body>
+	<div id="box"></div>
+</body>
+</html>
